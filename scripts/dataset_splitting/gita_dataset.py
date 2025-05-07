@@ -30,7 +30,25 @@ if __name__ == "__main__":
 
         sample_id = wav_path.split(os.path.sep)[-1].split('.')[0]
         subject_id = re.findall(r"(AVPEPUDEA(?:C)?\d{4})", sample_id)[0]
-        task_id = os.path.basename(wav_path).split('_')[1].upper()
+        # task_id = os.path.basename(wav_path).split('_')[1].upper()
+        # -- extract and map task to canonical group
+        task_id_raw = sample_id.split('_')[-1].upper()
+
+        task_group_mapping = {
+            'SUSTAINED-VOWELS': {'A', 'E', 'I', 'O', 'U', 'A1', 'A2', 'A3', 'E1', 'E2', 'E3', 'I1', 'I2', 'I3', 'O1', 'O2', 'O3', 'U1', 'U2', 'U3'},
+            'WORDS': {
+                'VISTE', 'BRASO', 'TRISTE', 'LUISA', 'FLECHA', 'BLUSA', 'GRITO', 'FRUTA', 'PRESA', 'ROSITA', 'REINA',
+                'CREMA', 'PLATO', 'MICASA', 'LAURA', 'CLAVO', 'OMAR', 'PREOCUPADO', 'APTO', 'GLOBO', 'PATO', 'GATO',
+                'JUAN', 'DRAMA', 'BODEGA', 'CAUCHO', 'LOSLIBROS', 'COCO', 'VIAJE', 'LLUEVE', 'TRATO', 'ATLETA',
+                'CAMPANA', 'ÑAME'
+            },
+            'DDK': {'PATAKA', 'PAKATA', 'TA', 'PA', 'KA', '-TA'},
+            'SENTENCES': {'PETAKA'},
+            'READ-TEXT': {'READTEXT'},
+            'MONOLOGUE': {'-MONOLOGO-NR'}
+        }
+
+        task_id = next((group for group, items in task_group_mapping.items() if task_id_raw in items), task_id_raw)
 
         # -- retriveing metadata per sample
         sample = metadata[metadata['RECODING ORIGINAL NAME'] == subject_id]

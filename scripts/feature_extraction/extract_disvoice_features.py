@@ -94,9 +94,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='DisVoice-based Feature Extraction', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--wav-dir', type=str, default='./data/gita/norm_audios/')
     parser.add_argument('--output-dir', required=True, type=str)
+    parser.add_argument('--static', action='store_true', help='Use static feature representation') 
     args = parser.parse_args()
 
     # -- speech feature extraction
+    print('Extracting disvoice features')
     extract_prosody()
     extract_articulation()
     extract_phonation()

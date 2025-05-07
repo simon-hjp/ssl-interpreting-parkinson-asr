@@ -33,6 +33,7 @@ class ParkinsonDataset(torch.utils.data.Dataset):
 
         # -- median and standard deviation of HC subjects in training for each type of feature.
         if is_training:
+            # self.feature_norm_stats = self.__compute_feature_norm_stats__(self.dataset[self.dataset['label'] == 0])
             self.feature_norm_stats = self.__compute_feature_norm_stats__(self.dataset[self.dataset['label'] == 0])
         else:
             # WARNING: For validation and test, these statistics are replaced in pipeline.py by those computed for training!
@@ -54,7 +55,8 @@ class ParkinsonDataset(torch.utils.data.Dataset):
         if self.config.model not in ['self_ssl']:
             batch_sample['informed_metadata'] = []
             for feature in self.config.features:
-                feature_data = np.load(sample[feature['name']])['data'][:, self.target_informed_idxs[feature['name']]]
+                # feature_data = np.load(sample[feature['name']])['data'][:, self.target_informed_idxs[feature['name']]]
+                feature_data = np.atleast_2d(np.load(sample[feature['name']])['data'])[:, self.target_informed_idxs[feature['name']]]
 
                 feature_std = self.feature_norm_stats[feature['name']]['std']
                 feature_median = self.feature_norm_stats[feature['name']]['median']
@@ -62,7 +64,8 @@ class ParkinsonDataset(torch.utils.data.Dataset):
 
         # -- ssl speech features
         if self.config.model not in ['self_inf']:
-            ssl_data = np.load(sample[self.config.ssl_features])['data']
+            # ssl_data = np.load(sample[self.config.ssl_features])['data']
+            ssl_data = np.atleast_2d(np.load(sample[self.config.ssl_features])['data'])
             ssl_median = self.feature_norm_stats[self.config.ssl_features]['median']
             ssl_std = self.feature_norm_stats[self.config.ssl_features]['std']
 
@@ -112,20 +115,31 @@ class ParkinsonDataset(torch.utils.data.Dataset):
         if self.config.model not in ['self_ssl']:
             for feature in self.config.features:
 
-                samples = np.array([
-                    np.load(sample_path)['data'][:, self.target_informed_idxs[feature['name']]]
-                    for sample_path in hc_dataset[feature['name']].tolist()
-                ])
+                # samples = np.array([
+                #     np.load(sample_path)['data'][:, self.target_informed_idxs[feature['name']]]
+                #     for sample_path in hc_dataset[feature['name']].tolist()
+                # ])
 
-                feature_norm_stats[feature['name']]['median'] = np.median(samples, axis=0)
-                feature_norm_stats[feature['name']]['std'] = np.std(samples, axis=0)
+                # feature_norm_stats[feature['name']]['median'] = np.median(samples, axis=0)
+                # feature_norm_stats[feature['name']]['std'] = np.std(samples, axis=0)
+                samples = [
+                    np.atleast_2d(np.load(p)['data'])[:, self.target_informed_idxs[feature['name']]]
+                    for p in hc_dataset[feature['name']].tolist()
+                ]
+                concat = np.concatenate(samples, axis=0)
+                feature_norm_stats[feature['name']]['median'] = np.median(concat, axis=0)
+                feature_norm_stats[feature['name']]['std'] = np.std(concat, axis=0)
 
         # -- statistics for SSL speech features
         if self.config.model not in ['mlp_inf', 'self_inf']:
+            # samples = np.concatenate([
+            #     np.load(sample_path)['data']
+            #     for sample_path in hc_dataset[self.config.ssl_features].tolist()
+            # ], axis=0 )
             samples = np.concatenate([
-                np.load(sample_path)['data']
-                for sample_path in hc_dataset[self.config.ssl_features].tolist()
-            ], axis=0 )
+                np.atleast_2d(np.load(p)['data'])
+                for p in hc_dataset[self.config.ssl_features].tolist()
+            ], axis=0)
 
             feature_norm_stats[self.config.ssl_features]['median'] = np.median(samples, axis=0)
             feature_norm_stats[self.config.ssl_features]['std'] = np.std(samples, axis=0)

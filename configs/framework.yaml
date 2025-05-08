@@ -75,6 +75,6 @@ class_names:
  - HC
  - PD
 seed: 42
-device: 'cuda'
+device: 'cpu'
 dtype: float32
 

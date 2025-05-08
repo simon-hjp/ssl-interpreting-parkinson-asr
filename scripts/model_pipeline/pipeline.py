@@ -15,6 +15,10 @@ def train(config):
     model.train()
     optimizer.zero_grad()
 
+    
+    config.device = "cpu"
+    print(f"Using device: {config.device}")
+
     train_output = {'loss': 0.0, 'acc': 0.0}
     accum_grad = config.training_settings['accum_grad']
     for batch_idx, batch in enumerate(tqdm(train_loader, position=0, leave=True, file=sys.stdout, bar_format="{l_bar}%s{bar:10}%s{r_bar}" % (Fore.GREEN, Fore.RESET))):
@@ -92,6 +96,10 @@ def pipeline(args, config, return_dicts=False):
     np.random.seed(config.seed)
     torch.manual_seed(config.seed)
     torch.cuda.manual_seed_all(config.seed)
+
+    if not hasattr(config, "device") or config.device != "cpu":
+        print("⚠️ Forcing device to CPU")
+        config.device = "cpu"
 
     # -- task and feature filtering
     same_config = task_and_feature_filtering(config, args.filter_tasks, args.exclude_features)

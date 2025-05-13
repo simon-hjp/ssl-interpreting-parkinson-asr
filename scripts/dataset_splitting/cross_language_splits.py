@@ -17,6 +17,7 @@ def gathering_datasets(dataset_paths, output_path):
             'phonation_static_disvoice',
             'articulation_static_disvoice',
             'glottal_static_disvoice',
+            'hubert'    # This is added to include the hubert features in the splits too
         ]].copy()
 
         print(len(focused_df))

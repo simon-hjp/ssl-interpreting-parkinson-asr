@@ -9,3 +9,6 @@ python scripts/feature_extraction/extract_disvoice_features.py --wav-dir $datase
 
 # -- extract Wav2Vec2.0 features
 python scripts/feature_extraction/extract_wav2vec_features.py --wav-dir $dataset_dir/norm_audios/ --output-dir $dataset_dir/speech_features/wav2vec/
+
+# -- extract hubert features
+python scripts/feature_extraction/extract_hubert_features.py --wav-dir $dataset_dir/norm_audios/ --output-dir $dataset_dir/speech_features/hubert/

@@ -45,10 +45,23 @@ features:
    metadata: "./metadata/target_disvoice/prosody.csv"
 
 # -- self-supervised speech features related
-ssl_features: wav2vec
+# ssl_features: wav2vec
+# ssl_features_conf:
+#   input_dim: 1024 # (T, 1024)
+#   layer_id: "layer07"
+
+# -- SSL features but now both hubert and wav2vec (this was changed for the ASR course)
+ssl_features:
+  - wav2vec
+  - hubert
+
 ssl_features_conf:
-  input_dim: 1024 # (T, 1024)
-  layer_id: "layer07"
+  wav2vec:
+    input_dim: 1024
+    layer_id: "layer07"
+  hubert:
+    input_dim: 1024
+    layer_id: "layer07"
 
 # -- model architecture related
 model: cross_full

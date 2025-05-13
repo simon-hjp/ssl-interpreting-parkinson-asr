@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     # -- adding information about speech features paths
     dataset_dir = os.path.sep.join(args.samples_dir.split(os.path.sep)[:-2])
-    for feature_type in ['disvoice/articulation', 'disvoice/glottal', 'disvoice/phonation', 'disvoice/prosody', 'wav2vec/layer07']:
+    for feature_type in ['disvoice/articulation', 'disvoice/glottal', 'disvoice/phonation', 'disvoice/prosody', 'wav2vec/layer07', 'hubert/layer07']:
         feature_samples = []
 
         for i, sample in dataset_df.iterrows():

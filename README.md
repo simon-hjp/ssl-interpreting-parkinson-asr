@@ -6,7 +6,9 @@ The code used for each experiment can be found in the different branches of this
 - For the experiment comparing Wav2Vec XLS-R with HuBERT embeddings, see the branch `daan`.
 - For the experiment comparing a layer-wise probe and finetuning, see the branch `simon`.
 - For the experiment investigating gender bias, see the branch `pascal`.
+
 Each branch contains a readme with instructions on how to get started with the code.
+
 
 Below is the README of the original source paper for reference:
 

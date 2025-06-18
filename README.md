@@ -1,3 +1,15 @@
+<h1 align="center">Comparing Deep Acoustic Feature Extraction Methods for Classification Performance and Investigating Gender Bias in Parkinson’s Disease Classification<span style="font-weight:normal"></h1>
+
+Parkinson's Disease (PD) is one of the most prevalent neurodegenerative diseases in the world. Research shows that speech can be used to discriminate healthy people form PD patients. This paper investigates various nuances about speech as a marker for PD detection with machine learning. The model of this paper requires features extracted from speech data. This paper investigates performance differences between Wav2vec 2.0 and HuBERT. It was found that HuBERT, when isolated, performs better with an F1-score of 75.41% against 74.73%. Then for the Wav2vec 2.0 model it was researched which layer of the architecture causes optimal performance. It was found that using different layers results in only marginal improvements. Finally, gender bias is often overlooked. When investigating gender bias in the model, it was found that the classifier generalizes better to males voices, and performs better on male voices for the DDK task. Concluding that gender bias does play a role in the model.
+
+The code used for each experiment can be found in the different branches of this repository:
+- For the experiment comparing Wav2Vec XLS-R with HuBERT embeddings, see the branch `daan`.
+- For the experiment comparing a layer-wise probe and finetuning, see the branch `simon`.
+- For the experiment investigating gender bias, see the branch `pascal`.
+Each branch contains a readme with instructions on how to get started with the code.
+
+Below is the README of the original source paper for reference:
+
 <h1 align="center"><span style="font-weight:normal">Unveiling Interpretability in Self-Supervised Speech Representations for Parkinson’s Diagnosis 🗣️🎙️📝📊</h1>
   
 <div align="center">

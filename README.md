@@ -1,3 +1,49 @@
+<h1 align="center"><span style="font-weight:normal">HuBERT vs Wav2vec speech features for unveiling Interpretability in Self-Supervised Speech Representations for Parkinson’s Diagnosis</h1>
+
+Parkinson's Disease (PD) is one of the most prevalent neurodegenerative diseases in the world. Research shows that speech can be used to discriminate healthy people form PD patients. This paper investigates various nuances about speech as a marker for PD detection with machine learning. The model of this paper requires features extracted from speech data. This paper investigates performance differences between Wav2vec 2.0 and HuBERT. It was found that HuBERT, when isolated, performs better with an F1-score of 75.41% against 74.73%. Then for the Wav2vec 2.0 model it was researched which layer of the architecture causes optimal performance. It was found that using different layers results in only marginal improvements. Finally, gender bias is often overlooked. When investigating gender bias in the model, it was found that the classifier generalizes better to males voices, and performs better on male voices for the DDK task. Concluding that gender bias does play a role in the model.
+
+
+## <a name="preparation"></a> 🛠️ Preparation
+
+- Prepare the **conda environment** to run the experiments:
+
+```
+conda create -n ssl-parkinson python=3.10
+conda activate ssl-parkinson
+pip install -r requirements.txt
+```
+
+## <a name="training"></a> Training and Evaluation
+
+To train and evaluate the framework based on HuBERT, we can follow the same steps as the source paper from Gimenez et al. First the dataset is pre-processed, followed by the dataset being split. Then the second command extracts the HuBERT features. The third command trains the actual model. Here the experiment is ran in a cross-full setup with both the interpretable and non-interpretable features.
+
+Note that `$DATASET_DIR` and `$METADATA_PATH` refer to the directory containing all the audio waveform samples and the CSV including the corpus subject metadata, respectively. _Please, note that you have to convert the 1st sheet of the .xlsx provided in the GITA dataset to a .csv file._
+
+
+
+```
+bash scripts/runs/dataset_preparation/gita.sh $DATASET_DIR $METADATA_PATH
+bash scripts/runs/feature_extraction/gita.sh
+bash scripts/runs/experiments/cross_full/gita.sh
+```
+
+For the isolated HuBERT setup, run the following command
+
+
+```
+bash scripts/runs/experiments/cross_full/gita.sh
+```
+
+In order to **evaluate your model** for a specific assessment task across all repetitions and folds, you can run the following command:
+
+```
+python scripts/evaluation/overall_performance.py --exps-dir ./exps/gita/cross_full/$TASK/
+```
+
+, where `$TASK` corresponds to the name of the target task you want to evaluate. You can always inspect the directory `scripts/evaluation/` to find other interesting scripts.
+
+
+
 <h1 align="center"><span style="font-weight:normal">Unveiling Interpretability in Self-Supervised Speech Representations for Parkinson’s Diagnosis 🗣️🎙️📝📊</h1>
   
 <div align="center">

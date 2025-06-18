@@ -188,8 +188,7 @@ if __name__ == "__main__":
     parser.add_argument('--save-embeddings', type=lambda x: bool(strtobool(x)), default=False)
     parser.add_argument('--output-dir', required=True, type=str, help='Path where to save model checkpoints and predictions')
 
-    args = parser.parse_args()
-
+    args = parser.parse_args() 
     # -- loading configuration file
     config_file = Path(args.config)
     with config_file.open('r', encoding='utf-8') as f:

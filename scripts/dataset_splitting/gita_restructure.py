@@ -21,7 +21,7 @@ if __name__ == "__main__":
     # -- loading and processing metadata
     # -- original column IDs: RECODING ORIGINAL NAME,UPDRS,UPDRS-speech,H/Y,SEX,AGE,time after diagnosis
     # metadata = pd.read_csv(args.metadata_path)
-    metadata = pd.read_csv(args.metadata_path, header=0, sep=';')
+    metadata = pd.read_csv(args.metadata_path, header=0, sep=',')
     metadata.columns = metadata.columns.str.strip()
     print(repr(metadata.columns[0]))  # Check the first column
     print(metadata.columns)

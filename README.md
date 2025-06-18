@@ -43,6 +43,8 @@ python scripts/evaluation/overall_performance.py --exps-dir ./exps/gita/cross_fu
 , where `$TASK` corresponds to the name of the target task you want to evaluate. You can always inspect the directory `scripts/evaluation/` to find other interesting scripts.
 
 
+Below is the ReadMe of the original source paper:
+
 
 <h1 align="center"><span style="font-weight:normal">Unveiling Interpretability in Self-Supervised Speech Representations for Parkinson’s Diagnosis 🗣️🎙️📝📊</h1>
   

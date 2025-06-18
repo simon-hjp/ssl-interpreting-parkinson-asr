@@ -90,8 +90,12 @@ class SelfInfModel(torch.nn.Module):
         return model_output
 
 
+import torch
+from einops.layers.torch import Reduce
+from .multiheaded_attention import MultiHeadedAttention
+
 class SelfSSLModel(torch.nn.Module):
-    """SSL Self-Attention Baseline Model.
+    """SSL Self-Attention Baseline Model (supports multiple SSL features).
     """
 
     def __init__(self, config):
@@ -100,17 +104,23 @@ class SelfSSLModel(torch.nn.Module):
         self.config = config
         self.attn_type = self.config.model
 
-        if self.config.ssl_features_conf['input_dim'] == self.config.model_conf['latent_dim']:
+        # -- compute total SSL input dimension across all selected SSL features
+        self.ssl_input_dim = sum(
+            self.config.ssl_features_conf[feat]['input_dim']
+            for feat in self.config.ssl_features
+        )
+
+        # -- linear projection to latent dimension if needed
+        if self.ssl_input_dim == self.config.model_conf['latent_dim']:
             self.linear_projection = None
         else:
             self.linear_projection = torch.nn.Linear(
-                self.config.ssl_features_conf['input_dim'],
+                self.ssl_input_dim,
                 self.config.model_conf['latent_dim'],
                 bias=False,
             )
 
         # -- model architecture setup
-        # [TxD] · [DxT] --> softmax([TxT]) · [TxD] --> [TxD] --> [1xD] -- Classification
         self.query_dim = self.config.model_conf['latent_dim']
         self.key_dim = self.config.model_conf['latent_dim']
         self.value_dim = self.config.model_conf['latent_dim']
@@ -136,36 +146,37 @@ class SelfSSLModel(torch.nn.Module):
             ),
         )
 
-        # 6. Computing Loss Function
+        # -- loss
         if config.training_settings['loss_criterion'] == 'cross_entropy':
             self.loss_criterion = torch.nn.CrossEntropyLoss(reduction='mean')
         else:
-            raise ValueError(f'unknown loss criterion {config.training_settings["loss_criterion"]}')
+            raise ValueError(f'Unknown loss criterion: {config.training_settings["loss_criterion"]}')
 
     def forward(self, batch):
         model_output = {}
 
-        # -- self-supervised speech representations
-        ssl_data = batch[self.config.ssl_features] # -- (batch, time, D)
+        # -- concatenate multiple SSL features along feature dimension
+        ssl_data = torch.cat([batch[feat] for feat in self.config.ssl_features], dim=-1)  # shape: (B, T, D_total)
 
+        # -- optional projection to latent_dim
         if self.linear_projection is not None:
-            ssl_data = self.linear_projection(ssl_data)
+            ssl_data = self.linear_projection(ssl_data)  # shape: (B, T, latent_dim)
 
-        # -- self-attention mechanism
-        mha_output = self.mha(ssl_data, ssl_data, ssl_data, mask=batch['mask_ssl']) # -- (batch, T, D), (batch, T, T)
-        reduced_mha_output = Reduce('b n d -> b d', 'mean')(mha_output).unsqueeze(1) # -- (batch, D)
+        # -- attention
+        mha_output = self.mha(ssl_data, ssl_data, ssl_data, mask=batch.get('mask_ssl', None))  # (B, T, D)
+        reduced_mha_output = Reduce('b n d -> b d', 'mean')(mha_output).unsqueeze(1)  # (B, 1, D)
 
         # -- classification
-        logits = self.classifier(reduced_mha_output).squeeze(1)
+        logits = self.classifier(reduced_mha_output).squeeze(1)  # (B, num_classes)
 
         model_output['subject_id'] = batch['subject_id']
         model_output['sample_id'] = batch['sample_id']
         model_output['embeddings'] = reduced_mha_output
         model_output['logits'] = logits
-        model_output['probs'] = torch.nn.functional.softmax(logits, dim = -1)
-        model_output['preds'] = logits.argmax(dim = -1)
+        model_output['probs'] = torch.nn.functional.softmax(logits, dim=-1)
+        model_output['preds'] = logits.argmax(dim=-1)
         model_output['labels'] = batch['label']
         model_output['loss'] = self.loss_criterion(logits, batch['label'])
-        model_output[f'self_ssl_mha_scores'] = self.mha.attn_scores
+        model_output['self_ssl_mha_scores'] = self.mha.attn_scores
 
         return model_output

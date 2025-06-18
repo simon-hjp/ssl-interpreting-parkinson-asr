@@ -146,12 +146,13 @@ def compute_average_report_across_runs(reports):
     overall_report.iloc[2,0] = ''
     overall_report.iloc[2,1] = ''
     overall_report.iloc[2,3] = overall_report.iloc[3,3]
-
     return overall_report
 
 def get_reports(exps_dir):
+    print('exps_dir = ', exps_dir)
     val_reports = []
     test_reports = []
+    print('checkpoint 1')
     run_dirs = os.listdir(exps_dir)
     for run_dir in run_dirs:
         if 'DS' not in run_dir:
@@ -159,35 +160,45 @@ def get_reports(exps_dir):
             val_labels = []
             test_preds = []
             test_labels = []
-
+            print('checkpoint 2')
             run_dir_path = os.path.join(exps_dir, run_dir)
             fold_dirs = os.listdir(run_dir_path)
             print('fold = ' ,fold_dirs)
             for fold_dir in fold_dirs:
-                if 'seed' in fold_dir:
+                print('checkpoint 3', fold_dir)
+
+                if 'fold' in fold_dir:
                     seed_dir_path = os.path.join(run_dir_path,fold_dir)
+                    print('checkpoint 4')
                     seed_dirs = os.listdir(seed_dir_path)
-                    print('seed = ', seed_dirs)
+   
+                    model_output_dir = os.path.join(run_dir_path, fold_dir, 'model_output')
+                    # -- validation set
+                    val_report_path = os.path.join(os.path.join(model_output_dir, 'validation_classification.pkl'))
+                    if not os.path.exists(val_report_path):
+                        print(f"Validation file missing: {val_report_path}")
+                        continue
+                    with open(val_report_path, 'rb') as f:
+                        val_model_output = pickle.load(f)
 
-                    for seed_dir in seed_dirs:
-                        if 'fold' in seed_dir:
-                            model_output_dir = os.path.join(run_dir_path, fold_dir, seed_dir , 'model_output')
+                    print('preds = ', val_model_output['preds'])
+                    print('labels = ', val_model_output['labels'])
 
-                            # -- validation set
-                            val_report_path = os.path.join(os.path.join(model_output_dir, 'validation_classification.pkl'))
-                            with open(val_report_path, 'rb') as f:
-                                val_model_output = pickle.load(f)
+                    val_preds += val_model_output['preds']
+                    val_labels += val_model_output['labels']
 
-                            val_preds += val_model_output['preds']
-                            val_labels += val_model_output['labels']
+                    # -- test set
+                    test_report_path = os.path.join(os.path.join(model_output_dir, 'test_classification.pkl'))
 
-                            # -- test set
-                            test_report_path = os.path.join(os.path.join(model_output_dir, 'test_classification.pkl'))
-                            with open(test_report_path, 'rb') as f:
-                                test_model_output = pickle.load(f)
+                    if not os.path.exists(test_report_path):
+                        print(f"Test file missing: {test_report_path}")
+                        continue
 
-                            test_preds += test_model_output['preds']
-                            test_labels += test_model_output['labels']
+                    with open(test_report_path, 'rb') as f:
+                        test_model_output = pickle.load(f)
+
+                    test_preds += test_model_output['preds']
+                    test_labels += test_model_output['labels']
 
         # -- computing reports
         val_reports.append(
@@ -216,8 +227,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Overall performance across the multiple assesing fold splits.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--exps-dir', required=True, type=str, help='Directory where the experiments are stored. It should include each directory for each run.')
-
+   
     args = parser.parse_args()
+
+    print(args)
 
     val_reports, test_reports = get_reports(args.exps_dir)
 

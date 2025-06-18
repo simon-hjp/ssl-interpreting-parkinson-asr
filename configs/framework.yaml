@@ -52,13 +52,13 @@ features:
 
 # -- SSL features but now both hubert and wav2vec (this was changed for the ASR course)
 ssl_features:
-  - wav2vec
+  # - wav2vec
   - hubert
 
 ssl_features_conf:
-  wav2vec:
-    input_dim: 1024
-    layer_id: "layer07"
+  # wav2vec:
+  #   input_dim: 1024
+  #   layer_id: "layer07"
   hubert:
     input_dim: 1024
     layer_id: "layer07"
@@ -68,7 +68,7 @@ model: cross_full
 model_conf:
   dropout: 0.1
   num_heads: 1
-  latent_dim: 1024
+  latent_dim: 2048
 
 # -- training settings related
 training_settings:

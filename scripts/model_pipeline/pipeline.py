@@ -213,3 +213,13 @@ if __name__ == "__main__":
 
     print('\n--- TEST ---')
     print(test_report)
+
+    # --- Cleanup to prevent multiprocessing semaphore warnings ---
+    import gc
+    import torch.multiprocessing as mp
+
+    gc.collect()
+    try:
+        mp.get_context("spawn").Manager().shutdown()
+    except Exception as e:
+        print(f"[Cleanup Warning] {e}")
